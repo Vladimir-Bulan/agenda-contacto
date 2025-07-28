@@ -1,5 +1,6 @@
 const API_URL = 'http://localhost:5000/api';
 
+// Helper para requests
 const apiRequest = async (url, options = {}) => {
     const token = localStorage.getItem('token');
 
@@ -25,6 +26,7 @@ const apiRequest = async (url, options = {}) => {
     return data;
 };
 
+// API de autenticación
 export const auth = {
     login: (email, password) =>
         apiRequest('/auth/login', {
@@ -35,6 +37,12 @@ export const auth = {
     register: (userData) =>
         apiRequest('/auth/register', {
             method: 'POST',
+            body: userData
+        }),
+
+    updateProfile: (userData) =>
+        apiRequest('/auth/profile', {
+            method: 'PUT',
             body: userData
         }),
 
@@ -54,11 +62,34 @@ export const auth = {
     }
 };
 
+// API de contactos
 export const contacts = {
     getAll: () => apiRequest('/contacts'),
-    create: (contactData) => apiRequest('/contacts', { method: 'POST', body: contactData }),
-    update: (id, contactData) => apiRequest(`/contacts/${id}`, { method: 'PUT', body: contactData }),
-    delete: (id) => apiRequest(`/contacts/${id}`, { method: 'DELETE' }),
-    toggleVisibility: (id) => apiRequest(`/contacts/${id}/visibility`, { method: 'PATCH' }),
-    toggleAdminVisibility: (id) => apiRequest(`/contacts/${id}/admin-visibility`, { method: 'PATCH' })
+
+    create: (contactData) =>
+        apiRequest('/contacts', {
+            method: 'POST',
+            body: contactData
+        }),
+
+    update: (id, contactData) =>
+        apiRequest(`/contacts/${id}`, {
+            method: 'PUT',
+            body: contactData
+        }),
+
+    delete: (id) =>
+        apiRequest(`/contacts/${id}`, {
+            method: 'DELETE'
+        }),
+
+    toggleVisibility: (id) =>
+        apiRequest(`/contacts/${id}/visibility`, {
+            method: 'PATCH'
+        }),
+
+    toggleAdminVisibility: (id) =>
+        apiRequest(`/contacts/${id}/admin-visibility`, {
+            method: 'PATCH'
+        })
 };

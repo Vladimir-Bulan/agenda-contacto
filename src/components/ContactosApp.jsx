@@ -23,8 +23,7 @@ const ContactosApp = () => {
         if (user) {
             loadContacts();
         } else {
-            // Si no hay usuario, mostrar solo contactos públicos
-            loadPublicContacts();
+            setContactList([]);
         }
     }, [user]);
 
@@ -39,12 +38,6 @@ const ContactosApp = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const loadPublicContacts = () => {
-        // Para usuarios no autenticados, mostrar array vacío
-        // El backend manejará esto
-        setContactList([]);
     };
 
     const handleLogin = async (email, password) => {
@@ -70,6 +63,24 @@ const ContactosApp = () => {
             setError('');
             const data = await auth.register(userData);
             auth.setUser(data);
+            setUser(data.user);
+            setCurrentView('home');
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateProfile = async (userData) => {
+        try {
+            setLoading(true);
+            setError('');
+            const data = await auth.updateProfile(userData);
+
+            // Actualizar usuario en localStorage y estado
+            const currentToken = localStorage.getItem('token');
+            auth.setUser({ token: currentToken, user: data.user });
             setUser(data.user);
             setCurrentView('home');
         } catch (err) {
@@ -282,6 +293,87 @@ const ContactosApp = () => {
                             className="flex-1 bg-green-500 text-white p-2 rounded hover:bg-green-600 disabled:opacity-50"
                         >
                             {loading ? 'Registrando...' : 'Registrar'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setCurrentView('home')}
+                            className="flex-1 bg-gray-500 text-white p-2 rounded hover:bg-gray-600"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        );
+    };
+
+    // Componente de Edición de Perfil
+    const ProfileForm = () => {
+        const [formData, setFormData] = useState({
+            nombre: user?.nombre || '',
+            apellido: user?.apellido || '',
+            empresa: user?.empresa || '',
+            domicilio: user?.domicilio || '',
+            telefonos: user?.telefonos || ''
+        });
+
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+            await handleUpdateProfile(formData);
+        };
+
+        return (
+            <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+                <h2 className="text-2xl font-bold mb-4">Editar Perfil</h2>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input
+                        type="text"
+                        placeholder="Nombre *"
+                        value={formData.nombre}
+                        onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                        className="w-full p-2 border rounded"
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Apellido *"
+                        value={formData.apellido}
+                        onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+                        className="w-full p-2 border rounded"
+                        required
+                    />
+                    <input
+                        type="text"
+                        placeholder="Empresa"
+                        value={formData.empresa}
+                        onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
+                        className="w-full p-2 border rounded"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Domicilio"
+                        value={formData.domicilio}
+                        onChange={(e) => setFormData({ ...formData, domicilio: e.target.value })}
+                        className="w-full p-2 border rounded"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Teléfonos"
+                        value={formData.telefonos}
+                        onChange={(e) => setFormData({ ...formData, telefonos: e.target.value })}
+                        className="w-full p-2 border rounded"
+                    />
+                    <p className="text-sm text-gray-500">
+                        Email: {user?.email} (no se puede cambiar)
+                    </p>
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    <div className="flex gap-2">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                        >
+                            {loading ? 'Actualizando...' : 'Actualizar'}
                         </button>
                         <button
                             type="button"
@@ -509,11 +601,14 @@ const ContactosApp = () => {
                     <div className="flex items-center gap-4">
                         {user ? (
                             <div className="flex items-center gap-4">
-                                <span className="text-blue-600 flex items-center gap-2">
+                                <button
+                                    onClick={() => setCurrentView('edit-profile')}
+                                    className="text-blue-600 hover:text-blue-800 flex items-center gap-2 hover:underline"
+                                >
                                     <User size={16} />
                                     {user.nombre} {user.apellido}
                                     {user.esAdmin && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Admin</span>}
-                                </span>
+                                </button>
                                 <button
                                     onClick={handleLogout}
                                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center gap-2"
@@ -549,6 +644,7 @@ const ContactosApp = () => {
                 {currentView === 'home' && <ContactList />}
                 {currentView === 'login' && <LoginForm />}
                 {currentView === 'register' && <RegisterForm />}
+                {currentView === 'edit-profile' && <ProfileForm />}
                 {currentView === 'add-contact' && (
                     <ContactForm
                         onSubmit={handleAddContact}
@@ -571,5 +667,3 @@ const ContactosApp = () => {
 };
 
 export default ContactosApp;
-
-dgxf
