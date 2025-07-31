@@ -259,7 +259,8 @@ agenda-contactos/
 ### 🔐 Autenticación
 - Contraseñas encriptadas con **bcrypt** (salt rounds: 10)
 - Tokens **JWT** con expiración de 24 horas
-- Middleware de autorización en todas las rutas protegidas
+- Middleware de autorización en todas las rutas protegidas 
+(aunque no sea necesario)
 
 ### 🛂 Autorización
 - Verificación de propietario para operaciones CRUD
@@ -308,19 +309,7 @@ Para producción, actualizar configuración CORS.
 
 ## 🚀 Deployment
 
-### Vercel (Frontend)
-```bash
-npm run build
-# Deploy dist/ folder to Vercel
-```
-
-### Railway (Backend)
-```bash
-# Connect GitHub repo to Railway
-# Set environment variables:
-# MONGODB_URI, JWT_SECRET, PORT
-```
-
+### todo local mi rey
 ---
 
 
